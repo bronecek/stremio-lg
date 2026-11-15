@@ -55,6 +55,16 @@ const Transition = ({ children, when, name, duration }: Props) => {
         return () => element?.removeEventListener('transitionend', onTransitionEnd);
     }, [element, onTransitionEnd]);
 
+    // Without a transition (reduced motion, styles that turn them off) no transitionend ever comes.
+    useEffect(() => {
+        if (state !== 'exit' || !element) return;
+
+        const durations = getComputedStyle(element).transitionDuration.split(',').map((value) => parseFloat(value) || 0);
+        if (durations.every((value) => value === 0)) {
+            setMounted(false);
+        }
+    }, [state, element]);
+
     return (
         mounted && cloneElement(children, {
             ref: callbackRef,
