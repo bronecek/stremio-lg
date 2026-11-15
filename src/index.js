@@ -23,6 +23,11 @@ const { CoreProvider } = require('./core');
 const { FileDropProvider, PlatformProvider } = require('./common');
 const { name: os } = require('./common/Platform/device');
 
+// The webOS TV app reaches the TV player's track controls through window.webOS.service.
+if (process.env.WEBOS) {
+    require('stremio-webos/webOSService').installWebOSService();
+}
+
 const translations = Object.fromEntries(Object.entries(stremioTranslations()).map(([key, value]) => [key, {
     translation: value
 }]));

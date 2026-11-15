@@ -571,7 +571,8 @@ const Player = () => {
                 assSubtitlesStyling: settings.assSubtitlesStyling,
                 gpuVideoProcessing: settings.gpuVideoProcessing && platform.shell.capabilities.gpuVideoProcessing,
                 videoMode: settings.videoMode,
-                platform: platform.name,
+                // stremio-video names the platform `webOS` and then plays through the TV's own player.
+                platform: process.env.WEBOS ? 'webOS' : platform.name,
                 streamingServerURL: streamingServer.baseUrl ?
                     casting ?
                         streamingServer.baseUrl
