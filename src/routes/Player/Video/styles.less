@@ -8,5 +8,11 @@
         * {
             font-size: inherit;
         }
+
+        // The webOS TV app draws its UI at --device-scale; the subtitles (stremio-video's one div
+        // next to the <video>) keep the size they have everywhere else.
+        :global(html.webos) & > div {
+            zoom: calc(1 / var(--device-scale, 1));
+        }
     }
 }

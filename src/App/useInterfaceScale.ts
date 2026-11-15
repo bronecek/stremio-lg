@@ -41,6 +41,10 @@ const useInterfaceScale = (profile: Profile) => {
     }, [core.transport]);
 
     useEffect(() => {
+        document.documentElement.style.setProperty('--device-scale', String(DEVICE_SCALE));
+    }, []);
+
+    useEffect(() => {
         if (shell.active && !shell.state.initialized) return;
 
         if (shell.capabilities.nativeInterfaceScale) {
