@@ -1,4 +1,4 @@
-import { name } from 'stremio/common/Platform/device';
+import { isWebOS, name } from 'stremio/common/Platform/device';
 
 const PRIMARY_MODIFIER = ['macos', 'ios', 'visionos'].includes(name) ? 'Meta' : 'Ctrl';
 
@@ -80,8 +80,17 @@ const MEDIA_KEY_ACTIONS: Record<string, MediaKeyAction> = {
     MediaRewind: 'rewind',
 };
 
+// The LG remote's media keys arrive as `Unidentified` with these key codes (19 is Pause/Break elsewhere).
+const WEBOS_MEDIA_KEY_CODES: Record<number, MediaKeyAction> = {
+    415: 'play',
+    19: 'pause',
+    413: 'stop',
+    417: 'fast-forward',
+    412: 'rewind',
+};
+
 const getMediaKeyAction = (event: KeyboardEvent): MediaKeyAction | null => {
-    return MEDIA_KEY_ACTIONS[event.key] ?? null;
+    return MEDIA_KEY_ACTIONS[event.key] ?? (isWebOS ? WEBOS_MEDIA_KEY_CODES[event.keyCode] ?? null : null);
 };
 
 export {
