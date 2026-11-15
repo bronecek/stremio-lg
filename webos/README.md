@@ -17,13 +17,18 @@ The script then copies `appinfo.json` (with the version from `package.json`) and
 
 ## On the TV
 
+- Everything is drawn at 150 % (on top of the account's interface scale, which other devices share) so it
+  reads from the sofa. There is no fullscreen toggle and no volume control in the player: the TV is always
+  full screen and its remote sets the volume.
 - The Magic Remote is a mouse: OK clicks what the cursor points at, the wheel scrolls. Pointer and hover
   media queries are answered like a desktop's at build time (`postcss-desktop-pointer.js`), and holding OK
   does not act as a touch long press.
 - Back closes an open popup, menu, dropdown or dialog, otherwise goes back; on the Board it asks to exit.
 - In the player the arrows seek and change the volume, OK after an arrow plays or pauses, the media keys
   (415 play, 19 pause, 413 stop, 417 fast-forward, 412 rewind) do what they say, CH ▼ hides the controls
-  and the cursor at once and CH ▲ shows them. The cursor leaves with the controls (`PalmSystem.setCursor`).
+  at once and CH ▲ shows them. The controls leave when the system hides the cursor (`cursorStateChange`,
+  key code 1537), even while it rests on them. The app never hides the cursor itself: after
+  `PalmSystem.setCursor("blank")` a webOS TV 26 set stops delivering pointer events.
 - Playback goes through stremio-video's `WebOsVideo`, which switches the TV player's audio and subtitle
   tracks; `runtime/webOSService.js` gives it `window.webOS.service` without bundling webOSTV.js.
 - Settings > Shortcuts lists the remote and opens a remote tester that shows each key's code, the cursor
