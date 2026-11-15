@@ -42,6 +42,19 @@ const MultiselectMenu = ({ className, title, icon, options, value, disabled, por
         toggleMenu();
     }, [toggleMenu]);
 
+    // The portal variant closes on Escape through Popup; the inline one has to do it itself.
+    React.useEffect(() => {
+        if (!menuOpen || portal) return;
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                closeMenu();
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [menuOpen, portal, closeMenu]);
+
     const containerClassName = classNames(styles['multiselect-menu'], { [styles['active']]: menuOpen }, className);
     const renderLabel = React.useCallback(({ ref, className: popupClassName }: { ref: React.Ref<HTMLDivElement>; className?: string }) => (
         <div ref={ref} className={classNames(containerClassName, popupClassName)}>
