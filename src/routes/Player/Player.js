@@ -482,7 +482,15 @@ const Player = () => {
         }
     }, [menusOpen, nextVideoPopupOpen, video.state.paused]);
 
-    usePlayerRemote({ overlayHidden, onPlayPause });
+    const hideControls = React.useCallback(() => {
+        setImmersedDebounced.cancel();
+        setImmersed(true);
+    }, [setImmersedDebounced]);
+    const showControls = React.useCallback(() => {
+        setImmersed(false);
+        setImmersedDebounced(true);
+    }, [setImmersedDebounced]);
+    usePlayerRemote({ overlayHidden, onPlayPause, onHideControls: hideControls, onShowControls: showControls });
 
     const onSeekPrev = React.useCallback((event) => {
         if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {

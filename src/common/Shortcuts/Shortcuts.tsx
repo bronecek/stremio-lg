@@ -4,6 +4,9 @@ import shortcuts from './shortcuts.json';
 
 const SHORTCUTS = shortcuts.map(({ shortcuts }) => shortcuts).flat();
 
+// The webOS TV app lists the remote's buttons instead; the keyboard shortcuts above keep working.
+const LISTED: ShortcutGroup[] = process.env.WEBOS ? require('stremio-webos/remoteControls').REMOTE_CONTROLS : shortcuts;
+
 export type ShortcutName = string;
 export type ShortcutListener = (combo: number, key: string, repeat: boolean) => void;
 
@@ -88,7 +91,7 @@ const ShortcutsProvider = ({ children, onShortcut }: Props) => {
         listeners.current.get(name)?.delete(listener);
     }, []);
 
-    const value = useMemo(() => ({ grouped: shortcuts, on, off }), [on, off]);
+    const value = useMemo(() => ({ grouped: LISTED, on, off }), [on, off]);
 
     useEffect(() => {
         document.addEventListener('keydown', onKeyDown);

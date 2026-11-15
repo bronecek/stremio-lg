@@ -43,6 +43,10 @@ i18n
         }
     });
 
+if (process.env.WEBOS) {
+    require('stremio-webos/remoteControls').installRemoteStrings(i18n);
+}
+
 const appInfo = {
     appVersion: process.env.VERSION,
     shellVersion: null,
