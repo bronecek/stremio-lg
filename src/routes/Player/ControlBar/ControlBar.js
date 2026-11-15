@@ -160,28 +160,36 @@ const ControlBar = React.forwardRef(({
                         :
                         null
                 }
-                <Button className={classnames(styles['control-bar-button'], { 'disabled': typeof muted !== 'boolean' })} title={muted ? t('PLAYER_UNMUTE') : t('PLAYER_MUTE')} tabIndex={-1} onClick={onMuteButtonClick}>
-                    <Icon
-                        className={styles['icon']}
-                        name={
-                            (typeof muted === 'boolean' && muted) ? 'volume-mute' :
-                                (volume === null || isNaN(volume)) ? 'volume-off' :
-                                    volume === 0 ? 'volume-mute' :
-                                        volume < 30 ? 'volume-low' :
-                                            volume < 70 ? 'volume-medium' :
-                                                'volume-high'
-                        }
-                    />
-                </Button>
                 {
-                    !platform.isMobile ?
-                        <VolumeSlider
-                            className={styles['volume-slider']}
-                            volume={volume}
-                            muted={muted}
-                            onVolumeChangeRequested={onVolumeChangeRequested}
-                        />
-                        : null
+                    // The TV's own remote sets the volume; the webOS app shows no volume controls.
+                    !process.env.WEBOS ?
+                        <React.Fragment>
+                            <Button className={classnames(styles['control-bar-button'], { 'disabled': typeof muted !== 'boolean' })} title={muted ? t('PLAYER_UNMUTE') : t('PLAYER_MUTE')} tabIndex={-1} onClick={onMuteButtonClick}>
+                                <Icon
+                                    className={styles['icon']}
+                                    name={
+                                        (typeof muted === 'boolean' && muted) ? 'volume-mute' :
+                                            (volume === null || isNaN(volume)) ? 'volume-off' :
+                                                volume === 0 ? 'volume-mute' :
+                                                    volume < 30 ? 'volume-low' :
+                                                        volume < 70 ? 'volume-medium' :
+                                                            'volume-high'
+                                    }
+                                />
+                            </Button>
+                            {
+                                !platform.isMobile ?
+                                    <VolumeSlider
+                                        className={styles['volume-slider']}
+                                        volume={volume}
+                                        muted={muted}
+                                        onVolumeChangeRequested={onVolumeChangeRequested}
+                                    />
+                                    : null
+                            }
+                        </React.Fragment>
+                        :
+                        null
                 }
                 <div className={styles['spacing']} />
                 <Button className={styles['control-bar-buttons-menu-button']} onClick={toggleButtonsMenu}>

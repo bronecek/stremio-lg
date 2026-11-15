@@ -7,6 +7,7 @@ import useShortcut from '../Shortcuts/useShortcut';
 import useSettings from '../useSettings';
 import FullscreenContext, { type FullscreenContextValue } from './FullscreenContext';
 import { usePlatform } from '../Platform';
+import { isWebOS } from '../Platform/device';
 
 type Props = {
     children: React.ReactNode,
@@ -33,7 +34,8 @@ const FullscreenProvider = ({ children }: Props) => {
         setHasVideoElement(el !== null);
     }, []);
 
-    const supported = shell.active || document.fullscreenEnabled === true || (hasVideoElement && hasWebkitFullscreen);
+    // A TV app always fills the screen, so the webOS app offers no fullscreen toggle.
+    const supported = !isWebOS && (shell.active || document.fullscreenEnabled === true || (hasVideoElement && hasWebkitFullscreen));
 
     const requestFullscreen = useCallback(async () => {
         if (shell.active) {
@@ -60,8 +62,9 @@ const FullscreenProvider = ({ children }: Props) => {
     }, [shell]);
 
     const toggleFullscreen = useCallback(() => {
+        if (!supported) return;
         fullscreen ? exitFullscreen() : requestFullscreen();
-    }, [fullscreen, exitFullscreen, requestFullscreen]);
+    }, [supported, fullscreen, exitFullscreen, requestFullscreen]);
 
     useShortcut('fullscreen', toggleFullscreen);
 
