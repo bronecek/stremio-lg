@@ -128,9 +128,11 @@ const Player = () => {
         nextVideoRemainingTime <= settings.nextVideoNotificationDuration;
     const [sideDrawerOpen, , closeSideDrawer, toggleSideDrawer] = useBinaryState(false);
 
+    const closableMenuOpen = optionsMenuOpen || subtitlesMenuOpen || audioMenuOpen || speedMenuOpen || statisticsMenuOpen || castDevicesMenuOpen || sideDrawerOpen;
+
     const menusOpen = React.useMemo(() => {
-        return optionsMenuOpen || subtitlesMenuOpen || audioMenuOpen || speedMenuOpen || statisticsMenuOpen || castDevicesMenuOpen || sideDrawerOpen || nextVideoPopupOpen;
-    }, [optionsMenuOpen, subtitlesMenuOpen, audioMenuOpen, speedMenuOpen, statisticsMenuOpen, castDevicesMenuOpen, sideDrawerOpen, nextVideoPopupOpen]);
+        return closableMenuOpen || nextVideoPopupOpen;
+    }, [closableMenuOpen, nextVideoPopupOpen]);
 
     const closeMenus = React.useCallback(() => {
         closeOptionsMenu();
@@ -815,7 +817,11 @@ const Player = () => {
     }, [isEpg, closeMenus, player.nextVideo, nextVideo, handleNextVideoNavigation]));
 
     useShortcut('exit', React.useCallback(() => {
-        closeMenus();
+        // Escape with a menu open only closes the menu; the next one leaves the player.
+        if (closableMenuOpen) {
+            closeMenus();
+            return;
+        }
         // When escExitFullscreen is enabled, FullscreenProvider handles the first
         // Escape press by leaving fullscreen. Only skip navigating back in that case,
         // otherwise Escape would never exit the player in windowed mode.
@@ -823,7 +829,7 @@ const Player = () => {
             return;
         }
         goBack();
-    }, [closeMenus, settings.escExitFullscreen, fullscreen, goBack]));
+    }, [closableMenuOpen, closeMenus, settings.escExitFullscreen, fullscreen, goBack]));
 
     React.useLayoutEffect(() => {
         if (!routeFocused) {
