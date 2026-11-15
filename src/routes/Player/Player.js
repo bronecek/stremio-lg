@@ -491,7 +491,6 @@ const Player = () => {
         setImmersed(false);
         setImmersedDebounced(true);
     }, [setImmersedDebounced]);
-    usePlayerRemote({ menusOpen, onPlayPause, onHideControls: hideControls, onShowControls: showControls });
 
     const settingsTab = subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : null;
     const showSettingsTab = React.useCallback((tab) => {
@@ -502,6 +501,19 @@ const Player = () => {
         if (tab === 'audio' && !audioMenuOpen) toggleAudioMenu();
         if (tab === 'speed' && !speedMenuOpen) toggleSpeedMenu();
     }, [subtitlesMenuOpen, audioMenuOpen, speedMenuOpen, toggleSubtitlesMenu, toggleAudioMenu, toggleSpeedMenu]);
+
+    const openSettings = React.useCallback(() => {
+        const tab = Array.isArray(allSubtitleTracks) && allSubtitleTracks.length > 0 ? 'subtitles'
+            : Array.isArray(video.state.audioTracks) && video.state.audioTracks.length > 0 ? 'audio'
+                : video.state.playbackSpeed !== null ? 'speed'
+                    : null;
+        if (tab !== null) {
+            setImmersed(false);
+            showSettingsTab(tab);
+        }
+    }, [allSubtitleTracks, video.state.audioTracks, video.state.playbackSpeed, showSettingsTab]);
+
+    usePlayerRemote({ menusOpen, onPlayPause, onHideControls: hideControls, onShowControls: showControls, onOpenSettings: openSettings });
 
     const onSeekPrev = React.useCallback((event) => {
         if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
@@ -805,7 +817,7 @@ const Player = () => {
             const volume = combo === 0 ? Math.min(video.state.volume + 5, 200) : Math.max(video.state.volume - 5, 0);
             onVolumeChangeRequested(volume);
         }
-    }, [onVolumeChangeRequested, video.state.volume]), !menusOpen);
+    }, [onVolumeChangeRequested, video.state.volume]), !menusOpen && !process.env.WEBOS);
 
     useShortcut('audioMenu', React.useCallback(() => {
         closeMenus();

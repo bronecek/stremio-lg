@@ -1,6 +1,6 @@
 // The player on the TV. The controls leave together with the system's cursor, even while it rests on
-// them, the arrow keys only seek and change the volume (they no longer also move the focus) unless a
-// menu is open, where they move between its options (the player stops seeking then), and OK
+// them, left and right seek, up and down open the subtitles/audio/speed panel (whose options the arrows
+// then move between), and OK
 // pressed after them (the remote is then in 5-way mode and sends Enter) plays or pauses. CH ▼ hides the
 // controls at once and CH ▲ shows them.
 //
@@ -15,7 +15,7 @@ const CURSOR_HIDDEN_KEY_CODE = 1537;
 
 const isTyping = (element) => element instanceof HTMLElement && (element.matches('input, textarea, select') || element.isContentEditable);
 
-const usePlayerRemote = ({ menusOpen, onPlayPause, onHideControls, onShowControls }) => {
+const usePlayerRemote = ({ menusOpen, onPlayPause, onHideControls, onShowControls, onOpenSettings }) => {
     React.useEffect(() => {
         const onCursorStateChange = (event) => {
             if (event.detail?.visibility === false) {
@@ -25,17 +25,6 @@ const usePlayerRemote = ({ menusOpen, onPlayPause, onHideControls, onShowControl
         document.addEventListener('cursorStateChange', onCursorStateChange);
         return () => document.removeEventListener('cursorStateChange', onCursorStateChange);
     }, [onHideControls]);
-
-    React.useEffect(() => {
-        const spatialNavigation = window.__spatialNavigation__;
-        if (!spatialNavigation || menusOpen) return;
-
-        const keyMode = spatialNavigation.keyMode;
-        spatialNavigation.keyMode = 'NONE';
-        return () => {
-            spatialNavigation.keyMode = keyMode;
-        };
-    }, [menusOpen]);
 
     React.useEffect(() => {
         const onKeyDown = (event) => {
@@ -48,6 +37,12 @@ const usePlayerRemote = ({ menusOpen, onPlayPause, onHideControls, onShowControl
                 event.keyCode === CHANNEL_DOWN_KEY_CODE ? onHideControls() : onShowControls();
                 return;
             }
+            // The TV's remote sets the volume, so up and down open subtitles, audio and speed instead.
+            if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && !menusOpen && !event.defaultPrevented) {
+                event.preventDefault();
+                onOpenSettings();
+                return;
+            }
             if (event.key !== 'Enter' || event.repeat) return;
             const focused = document.activeElement;
             // A focused control takes OK as a click.
@@ -58,7 +53,7 @@ const usePlayerRemote = ({ menusOpen, onPlayPause, onHideControls, onShowControl
         };
         document.addEventListener('keydown', onKeyDown);
         return () => document.removeEventListener('keydown', onKeyDown);
-    }, [onPlayPause, onHideControls, onShowControls]);
+    }, [menusOpen, onPlayPause, onHideControls, onShowControls, onOpenSettings]);
 };
 
 module.exports = usePlayerRemote;
