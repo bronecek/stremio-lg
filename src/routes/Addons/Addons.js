@@ -7,7 +7,7 @@ const classnames = require('classnames');
 const { useTranslation } = require('react-i18next');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { useCore } = require('stremio/core');
-const { usePlatform, useBinaryState, withCoreSuspender } = require('stremio/common');
+const { usePlatform, useBinaryState, useProfile, withCoreSuspender } = require('stremio/common');
 const { AddonDetailsModal, Button, Image, MainNavBars, ModalDialog, SearchBar, SharePrompt, TextInput, MultiselectMenu } = require('stremio/components');
 const useToast = require('stremio/common/Toast/useToast');
 const receivesWatchActivity = require('stremio/components/AddonDetailsModal/receivesWatchActivity');
@@ -31,6 +31,7 @@ const Addons = () => {
     const platform = usePlatform();
     const core = useCore();
     const toast = useToast();
+    const profile = useProfile();
     const installedAddons = useInstalledAddons(urlParams);
     const remoteAddons = useRemoteAddons(urlParams);
     const [addonDetailsTransportUrl, setAddonDetailsTransportUrl] = useAddonDetailsTransportUrl(urlParams);
@@ -127,6 +128,21 @@ const Addons = () => {
         setSearch('');
         clearSharedAddon();
     }, [urlParams, queryParams]);
+    // The webOS TV app pulls the account's addons on request: a TV window rarely gets the focus event
+    // that pulls them on the web.
+    const syncAddons = React.useCallback(() => {
+        core.transport.dispatch({
+            action: 'Ctx',
+            args: {
+                action: 'PullAddonsFromAPI'
+            }
+        });
+        toast.show({
+            type: 'success',
+            title: t('WEBOS_SYNC_ADDONS_STARTED'),
+            timeout: 3000
+        });
+    }, [core, toast, t]);
     return (
         <MainNavBars className={styles['addons-container']} route={'addons'}>
             <div className={styles['addons-content']}>
@@ -139,6 +155,13 @@ const Addons = () => {
                         />
                     ))}
                     <div className={styles['spacing']} />
+                    {
+                        process.env.WEBOS && profile.auth !== null &&
+                            <Button className={styles['add-button-container']} title={t('WEBOS_SYNC_ADDONS')} onClick={syncAddons}>
+                                <Icon className={styles['icon']} name={'cloud-sync'} />
+                                <div className={styles['add-button-label']}>{t('WEBOS_SYNC_ADDONS')}</div>
+                            </Button>
+                    }
                     <Button className={styles['add-button-container']} title={t('ADD_ADDON')} onClick={openAddAddonModal}>
                         <Icon className={styles['icon']} name={'add'} />
                         <div className={styles['add-button-label']}>{t('ADD_ADDON')}</div>

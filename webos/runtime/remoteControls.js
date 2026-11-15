@@ -1,5 +1,6 @@
-// What the LG remote does in the app, in the shape of src/common/Shortcuts/shortcuts.json, so the
-// Settings shortcuts page and the shortcuts modal list the remote instead of the keyboard.
+// The webOS app's own strings (installRemoteStrings), and what the LG remote does in the app in the shape
+// of src/common/Shortcuts/shortcuts.json, so the Settings shortcuts page and the shortcuts modal list the
+// remote instead of the keyboard.
 // Combos are labels: `OK`, `↶` (Back), `CH ▼`, the media symbols (`II` is Pause: the UI font has no ⏸);
 // arrow key names render as arrows.
 
@@ -41,6 +42,8 @@ const STRINGS = {
         WEBOS_REMOTE_TESTER: 'Test the remote',
         WEBOS_REMOTE_TESTER_HINT: 'Press any button, move or shake the remote. Back closes this window.',
         WEBOS_REMOTE_TESTER_TOGGLE_CURSOR: 'Hide / show the cursor',
+        WEBOS_SYNC_ADDONS: 'Sync addons from account',
+        WEBOS_SYNC_ADDONS_STARTED: 'Syncing addons from your account…',
     },
     'cs-CZ': {
         WEBOS_REMOTE_GROUP: 'Magic Remote',
@@ -54,6 +57,8 @@ const STRINGS = {
         WEBOS_REMOTE_TESTER: 'Otestovat ovladač',
         WEBOS_REMOTE_TESTER_HINT: 'Mačkej tlačítka, hýbej ovladačem nebo s ním zatřes. Zpět okno zavře.',
         WEBOS_REMOTE_TESTER_TOGGLE_CURSOR: 'Schovat / ukázat kurzor',
+        WEBOS_SYNC_ADDONS: 'Synchronizovat doplňky z účtu',
+        WEBOS_SYNC_ADDONS_STARTED: 'Synchronizuji doplňky z účtu…',
     },
 };
 

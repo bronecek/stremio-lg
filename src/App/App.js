@@ -160,11 +160,24 @@ const App = () => {
             });
         };
 
+        // The webOS TV app comes back from the background without a focus event.
+        const onVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                onWindowFocus();
+            }
+        };
+
         onWindowFocus();
         window.addEventListener('focus', onWindowFocus);
+        if (process.env.WEBOS) {
+            document.addEventListener('visibilitychange', onVisibilityChange);
+        }
 
         return () => {
             window.removeEventListener('focus', onWindowFocus);
+            if (process.env.WEBOS) {
+                document.removeEventListener('visibilitychange', onVisibilityChange);
+            }
         };
     }, [core.transport]);
 
