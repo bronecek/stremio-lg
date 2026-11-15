@@ -104,6 +104,8 @@ module.exports = (env, argv) => ({
                         options: {
                             postcssOptions: {
                                 plugins: [
+                                    // The Magic Remote is a mouse: answer pointer and hover media queries like a desktop.
+                                    env.webos && path.resolve(__dirname, 'webos', 'postcss-desktop-pointer.js'),
                                     ['cssnano', {
                                         preset: [
                                             'advanced',
@@ -135,7 +137,7 @@ module.exports = (env, argv) => ({
                                             }
                                         ]
                                     }]
-                                ]
+                                ].filter(Boolean)
                             }
                         }
                     },

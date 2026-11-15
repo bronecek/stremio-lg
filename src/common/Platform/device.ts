@@ -36,8 +36,12 @@ const isMobile = ['ios', 'android'].includes(name);
 // WebKitGTK crashes or stops responding when a view transition starts on navigation.
 const supportsViewTransitions = !(os === 'linux' && bowser.getEngineName() === 'WebKit');
 
+// The packaged LG TV app, built with `webpack --env webos` (see webos/README.md).
+const isWebOS = (process.env.WEBOS as string | boolean | undefined) === true;
+
 export {
     name,
     isMobile,
+    isWebOS,
     supportsViewTransitions,
 };

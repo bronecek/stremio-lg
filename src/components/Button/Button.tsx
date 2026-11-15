@@ -4,6 +4,7 @@ import { createElement, forwardRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { LongPressEventType, useLongPress } from 'use-long-press';
+import { isWebOS } from 'stremio/common/Platform/device';
 import styles from './Button.less';
 
 type Props = {
@@ -27,7 +28,8 @@ type Props = {
 };
 
 const Button = forwardRef(({ className, href, disabled, children, onLongPress, onDoubleClick, ...props }: Props, ref) => {
-    const longPress = useLongPress(onLongPress!, { detect: LongPressEventType.Pointer });
+    // The Magic Remote is a mouse; holding OK must not act like a touch long press.
+    const longPress = useLongPress(isWebOS ? null : onLongPress!, { detect: LongPressEventType.Pointer });
     const to = typeof href === 'string' && href.startsWith('#/') && typeof props.download !== 'string' ? href.slice(1) : null;
     const component: React.ElementType = to !== null ? Link : typeof href === 'string' && href.length > 0 ? 'a' : 'div';
 
