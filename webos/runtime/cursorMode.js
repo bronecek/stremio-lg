@@ -35,6 +35,11 @@ const installCursorMode = () => {
         }
     };
 
+    // The app often starts with the cursor already hidden, and no event says so.
+    if (window.PalmSystem?.cursor?.visibility === false) {
+        root.classList.add(HIDDEN_CLASS);
+    }
+
     document.addEventListener('cursorStateChange', (event) => {
         event.detail?.visibility === false ? hide() : show();
     });

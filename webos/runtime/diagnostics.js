@@ -18,6 +18,10 @@ const installDiagnostics = () => {
         document.addEventListener(type, (event) => add(type, `${Math.round(event.clientX)},${Math.round(event.clientY)} ${event.pointerType || ''} on ${describe(event.target)}${event.isTrusted ? '' : ' (synthetic)'}`), true);
     });
     document.addEventListener('cursorStateChange', (event) => add('cursorStateChange', String(event.detail?.visibility)));
+    document.addEventListener('keyboardStateChange', (event) => add('keyboardStateChange', String(event.detail?.visibility)));
+    document.addEventListener('webOSMouse', (event) => add('webOSMouse', JSON.stringify(event.detail)));
+    document.addEventListener('focusin', (event) => add('focusin', describe(event.target)), true);
+    document.addEventListener('focusout', (event) => add('focusout', `${describe(event.target)} -> ${describe(event.relatedTarget)}`), true);
     document.addEventListener('visibilitychange', () => add('visibilitychange', document.visibilityState));
     window.addEventListener('focus', () => add('window focus'));
     window.addEventListener('blur', () => add('window blur'));
