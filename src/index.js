@@ -26,8 +26,10 @@ const { name: os } = require('./common/Platform/device');
 // The webOS TV app reaches the TV player's track controls through window.webOS.service; `html.webos`
 // lets styles tell the TV app apart.
 if (process.env.WEBOS) {
+    require('stremio-webos/diagnostics').installDiagnostics();
     require('stremio-webos/webOSService').installWebOSService();
     require('stremio-webos/cursorMode').installCursorMode();
+    require('stremio-webos/noMotion').installNoMotion();
     document.documentElement.classList.add('webos');
 }
 

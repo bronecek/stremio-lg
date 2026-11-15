@@ -11,11 +11,6 @@ const installCursorMode = () => {
     let target = null;
     let point = null;
 
-    // An older build hid the cursor with PalmSystem.setCursor("blank"), which outlives a reinstall.
-    if (typeof window.PalmSystem?.setCursor === 'function') {
-        window.PalmSystem.setCursor('default', 0, 0);
-    }
-
     document.addEventListener('pointerover', (event) => {
         if (event.isTrusted) {
             target = event.target;
