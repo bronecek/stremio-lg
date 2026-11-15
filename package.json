@@ -13,7 +13,7 @@
         "build:webos": "node webos/scripts/build.mjs",
         "deploy:webos": "node webos/scripts/deploy.mjs",
         "test": "jest",
-        "lint": "eslint src --max-warnings 287",
+        "lint": "eslint src webos --max-warnings 287",
         "scan-translations": "pnpx jest ./tests/i18nScan.test.js"
     },
     "engines": {

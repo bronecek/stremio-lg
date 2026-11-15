@@ -18,6 +18,9 @@ const { default: GamepadModal } = require('./GamepadModal');
 const { default: useInterfaceScale } = require('./useInterfaceScale');
 const styles = require('./styles');
 
+// The webOS TV app's remote keys; the web build leaves this module out.
+const useWebOSBackKey = process.env.WEBOS ? require('stremio-webos/useBackKey') : () => undefined;
+
 const ProtectedRoutes = withCoreSuspender(Routes);
 const NAVIGATE_TABS_ROUTES = ['/', '/discover', '/library', '/calendar', '/addons', '/settings'];
 
@@ -40,6 +43,7 @@ const App = () => {
     }, []);
     const [shortcutModalOpen,, closeShortcutsModal, toggleShortcutModal] = useBinaryState(false);
     const [gamepadModalOpen,, closeGamepadModal, toggleGamepadModal] = useBinaryState(false);
+    useWebOSBackKey();
 
     const onShortcut = React.useCallback((name, combo, key) => {
         switch (name) {
