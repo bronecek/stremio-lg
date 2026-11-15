@@ -12,6 +12,9 @@ const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const { Button, Image, Checkbox } = require('stremio/components');
 const CredentialsTextInput = require('./CredentialsTextInput');
 const PasswordResetModal = require('./PasswordResetModal');
+
+// The webOS TV app signs in through a phone; the web build leaves this module out.
+const QrLoginModal = process.env.WEBOS ? require('stremio-webos/QrLoginModal') : null;
 const useFacebookLogin = require('./useFacebookLogin');
 const { default: useAppleLogin } = require('./useAppleLogin');
 
@@ -36,6 +39,7 @@ const Intro = () => {
     const marketingRef = React.useRef(null);
     const errorRef = React.useRef(null);
     const [passwordRestModalOpen, openPasswordRestModal, closePasswordResetModal] = useBinaryState(false);
+    const [qrLoginOpen, openQrLogin, closeQrLogin] = useBinaryState(false);
     const [loaderModalOpen, openLoaderModal, closeLoaderModal] = useBinaryState(false);
     const [state, dispatch] = React.useReducer(
         (state, action) => {
@@ -263,7 +267,8 @@ const Intro = () => {
         }
     }, [state.error]);
     React.useEffect(() => {
-        if (routeFocused) {
+        // On webOS a focused field opens the on-screen keyboard over the form, and the next click only closes it.
+        if (routeFocused && !process.env.WEBOS) {
             emailRef.current.focus();
         }
     }, [state.form, routeFocused]);
@@ -373,6 +378,13 @@ const Intro = () => {
                     </Button>
                 </div>
                 <div className={styles['options-container']}>
+                    {
+                        QrLoginModal !== null &&
+                            <Button className={classnames(styles['form-button'], styles['submit-button'], styles['phone-login-button'])} onClick={openQrLogin}>
+                                <Icon className={styles['icon']} name={'person-outline'} />
+                                <div className={styles['label']}>{t('WEBOS_QR_LOGIN')}</div>
+                            </Button>
+                    }
                     <Button className={classnames(styles['form-button'], styles['facebook-button'])} onClick={loginWithFacebook}>
                         <Icon className={styles['icon']} name={'facebook'} />
                         <div className={styles['label']}>{t('FB_LOGIN')}</div>
@@ -407,6 +419,12 @@ const Intro = () => {
                     }
                 </div>
             </div>
+            {
+                QrLoginModal !== null && qrLoginOpen ?
+                    <QrLoginModal onCloseRequest={closeQrLogin} />
+                    :
+                    null
+            }
             {
                 passwordRestModalOpen ?
                     <PasswordResetModal email={state.email} onCloseRequest={closePasswordResetModal} />
