@@ -48,6 +48,9 @@ const CAST_DEVICES_REFRESH_INTERVAL = 5000;
 
 const POINTER_JITTER_PX = 8;
 
+// The TV remote in the webOS app; the web build leaves this module out.
+const usePlayerRemote = process.env.WEBOS ? require('stremio-webos/usePlayerRemote') : () => undefined;
+
 const Player = () => {
     const { stream, streamTransportUrl, metaTransportUrl, type, id, videoId } = useParams();
     const urlParams = React.useMemo(() => ({
@@ -478,6 +481,8 @@ const Player = () => {
             }
         }
     }, [menusOpen, nextVideoPopupOpen, video.state.paused]);
+
+    usePlayerRemote({ overlayHidden, onPlayPause });
 
     const onSeekPrev = React.useCallback((event) => {
         if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
