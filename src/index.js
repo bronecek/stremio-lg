@@ -31,6 +31,7 @@ if (process.env.WEBOS) {
     require('stremio-webos/cursorMode').installCursorMode();
     require('stremio-webos/noMotion').installNoMotion();
     require('stremio-webos/arrowNavigation').installArrowNavigation();
+    require('stremio-webos/keyboardGuard').installKeyboardGuard();
     document.documentElement.classList.add('webos');
 }
 

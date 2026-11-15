@@ -21,6 +21,7 @@ const installDiagnostics = () => {
     document.addEventListener('keyboardStateChange', (event) => add('keyboardStateChange', String(event.detail?.visibility)));
     document.addEventListener('webOSMouse', (event) => add('webOSMouse', JSON.stringify(event.detail)));
     document.addEventListener('focusin', (event) => add('focusin', describe(event.target)), true);
+    document.addEventListener('input', (event) => add('input', `${describe(event.target)} "${String(event.target.value ?? '').slice(-20)}"`), true);
     document.addEventListener('focusout', (event) => add('focusout', `${describe(event.target)} -> ${describe(event.relatedTarget)}`), true);
     document.addEventListener('visibilitychange', () => add('visibilitychange', document.visibilityState));
     window.addEventListener('focus', () => add('window focus'));
