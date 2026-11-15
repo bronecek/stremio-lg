@@ -46,6 +46,8 @@ const GAMEPAD_HANDLER_ID = 'player';
 
 const CAST_DEVICES_REFRESH_INTERVAL = 5000;
 
+const POINTER_JITTER_PX = 8;
+
 const Player = () => {
     const { stream, streamTransportUrl, metaTransportUrl, type, id, videoId } = useParams();
     const urlParams = React.useMemo(() => ({
@@ -91,6 +93,7 @@ const Player = () => {
 
     const [immersed, setImmersed] = React.useState(true);
     const setImmersedDebounced = React.useCallback(debounce(setImmersed, 3000), []);
+    const pointerRestRef = React.useRef(null);
     const [fullscreen, , , toggleFullscreen, , setVideoElement] = useFullscreen();
 
     React.useEffect(() => {
@@ -438,15 +441,25 @@ const Player = () => {
     }, []);
 
     const onContainerMouseMove = React.useCallback((event) => {
-        setImmersed(false);
-        if (!event.nativeEvent.immersePrevented) {
-            setImmersedDebounced(true);
-        } else {
+        // A pointer held in the air (TV motion remotes, trackpads) trembles by a few pixels.
+        // Treating that as movement would restart the hide timer forever.
+        const { clientX, clientY } = event.nativeEvent;
+        const rest = pointerRestRef.current;
+        const moved = rest === null || Math.hypot(clientX - rest.x, clientY - rest.y) >= POINTER_JITTER_PX;
+        if (moved) {
+            pointerRestRef.current = { x: clientX, y: clientY };
+            setImmersed(false);
+        }
+
+        if (event.nativeEvent.immersePrevented) {
             setImmersedDebounced.cancel();
+        } else if (moved) {
+            setImmersedDebounced(true);
         }
     }, []);
 
     const onContainerMouseLeave = React.useCallback(() => {
+        pointerRestRef.current = null;
         setImmersedDebounced.cancel();
         setImmersed(true);
     }, []);
