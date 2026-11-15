@@ -28,6 +28,11 @@ The script then copies `appinfo.json` (with the version from `package.json`) and
   tracks; `runtime/webOSService.js` gives it `window.webOS.service` without bundling webOSTV.js.
 - Settings > Shortcuts lists the remote and opens a remote tester that shows each key's code, the cursor
   and keyboard events and the pointer type.
+- "Log in with your phone" on the intro page shows a QR code and a code from link.stremio.com; signing in
+  on the phone signs the TV in. The intro page does not focus the email field on its own, which would open
+  the on-screen keyboard.
+- The account's addons, user and library are pulled whenever the app comes back to the foreground, and
+  the Addons page has "Sync addons from account" (signed in only).
 
 ## One-time setup
 
