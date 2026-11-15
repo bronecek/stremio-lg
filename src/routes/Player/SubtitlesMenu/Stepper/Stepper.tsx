@@ -99,6 +99,16 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, acce
         if (!accelerate || !hasRepeated.current) updateValue(step);
     }, [accelerate, step, updateValue]);
 
+    // Enter or OK on a focused button clicks it without a press (detail 0); a pointer's press already
+    // stepped on mouseup.
+    const onDecrementClick = useCallback((event: React.MouseEvent) => {
+        if (event.detail === 0) updateValue(-step);
+    }, [step, updateValue]);
+
+    const onIncrementClick = useCallback((event: React.MouseEvent) => {
+        if (event.detail === 0) updateValue(step);
+    }, [step, updateValue]);
+
     useEffect(() => {
         localValue.current = value;
     }, [value]);
@@ -114,6 +124,7 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, acce
                     onMouseDown={onDecrementMouseDown}
                     onMouseUp={onDecrementMouseUp}
                     onMouseLeave={cancel}
+                    onClick={onDecrementClick}
                 >
                     <Icon className={styles['icon']} name={'remove'} />
                 </Button>
@@ -125,6 +136,7 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, acce
                     onMouseDown={onIncrementMouseDown}
                     onMouseUp={onIncrementMouseUp}
                     onMouseLeave={cancel}
+                    onClick={onIncrementClick}
                 >
                     <Icon className={styles['icon']} name={'add'} />
                 </Button>
