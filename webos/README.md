@@ -15,6 +15,20 @@ It targets webOS TV 26 (Chromium 132) and is driven with the Magic Remote pointe
 The script then copies `appinfo.json` (with the version from `package.json`) and the icons, and packs
 `build-webos/com.bronec.stremio_<version>_all.ipk` with `ares-package`.
 
+## On the TV
+
+- The Magic Remote is a mouse: OK clicks what the cursor points at, the wheel scrolls. Pointer and hover
+  media queries are answered like a desktop's at build time (`postcss-desktop-pointer.js`), and holding OK
+  does not act as a touch long press.
+- Back closes an open popup, menu, dropdown or dialog, otherwise goes back; on the Board it asks to exit.
+- In the player the arrows seek and change the volume, OK after an arrow plays or pauses, the media keys
+  (415 play, 19 pause, 413 stop, 417 fast-forward, 412 rewind) do what they say, CH ▼ hides the controls
+  and the cursor at once and CH ▲ shows them. The cursor leaves with the controls (`PalmSystem.setCursor`).
+- Playback goes through stremio-video's `WebOsVideo`, which switches the TV player's audio and subtitle
+  tracks; `runtime/webOSService.js` gives it `window.webOS.service` without bundling webOSTV.js.
+- Settings > Shortcuts lists the remote and opens a remote tester that shows each key's code, the cursor
+  and keyboard events and the pointer type.
+
 ## One-time setup
 
 1. Create a free LG developer account at <https://webostv.developer.lge.com>.
@@ -60,6 +74,10 @@ the AppImage needs the two flags, which `ares-launch -s` cannot pass:
 ```bash
 ./webOS_TV_26_Simulator_1.5.0.AppImage "$PWD/build-webos/app" "{}" --ozone-platform=x11 --no-sandbox
 ```
+
+Add `--remote-debugging-port=9333` to drive the app and the simulated remote over the DevTools protocol.
+The simulator has no H.264 decoder and no TV media pipeline: test playback with a VP9 WebM stream, and
+check audio tracks, embedded subtitles, HDR and Dolby Vision on the TV.
 
 ## Streaming server
 
