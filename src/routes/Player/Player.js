@@ -490,7 +490,7 @@ const Player = () => {
         setImmersed(false);
         setImmersedDebounced(true);
     }, [setImmersedDebounced]);
-    usePlayerRemote({ overlayHidden, onPlayPause, onHideControls: hideControls, onShowControls: showControls });
+    usePlayerRemote({ onPlayPause, onHideControls: hideControls, onShowControls: showControls });
 
     const onSeekPrev = React.useCallback((event) => {
         if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {

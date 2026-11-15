@@ -1,9 +1,9 @@
 // Shows what reaches the app from the remote: keys with their codes, the cursor and keyboard events,
 // the pointer type and what the TV answers to the pointer media queries. Back closes it (as any dialog).
+// webOS also sends key codes 1536 and 1537 when the cursor shows and hides.
 const React = require('react');
 const { createPortal } = require('react-dom');
 const { useTranslation } = require('react-i18next');
-const { setCursorHidden } = require('./cursor');
 
 const MEDIA_QUERIES = ['(pointer: fine)', '(pointer: coarse)', '(any-pointer: coarse)', '(hover: hover)', '(hover: none)'];
 
@@ -13,7 +13,6 @@ const STYLES = {
     row: { display: 'flex', gap: '2rem', marginTop: '1rem' },
     column: { flex: 1 },
     log: { fontFamily: 'monospace', whiteSpace: 'pre-wrap', minHeight: '18rem', marginTop: '0.5rem', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255, 255, 255, 0.06)' },
-    button: { marginTop: '1.5rem', padding: '1rem 2rem', borderRadius: '0.5rem', border: 'none', fontSize: '1.4rem', cursor: 'pointer' },
 };
 
 const RemoteTester = ({ onClose }) => {
@@ -21,7 +20,6 @@ const RemoteTester = ({ onClose }) => {
     const [keys, setKeys] = React.useState([]);
     const [events, setEvents] = React.useState([]);
     const [pointer, setPointer] = React.useState('–');
-    const [cursorHidden, setHidden] = React.useState(false);
 
     React.useEffect(() => {
         const push = (setter) => (line) => setter((lines) => [line, ...lines].slice(0, 12));
@@ -51,16 +49,6 @@ const RemoteTester = ({ onClose }) => {
         };
     }, [onClose]);
 
-    React.useEffect(() => () => setCursorHidden(false), []);
-
-    const toggleCursor = React.useCallback(() => {
-        setHidden((hidden) => {
-            setCursorHidden(!hidden);
-            if (!hidden) setTimeout(() => setHidden(() => { setCursorHidden(false); return false; }), 3000);
-            return !hidden;
-        });
-    }, []);
-
     return createPortal(
         React.createElement('div', { style: STYLES.layer, onClick: (event) => event.target === event.currentTarget && onClose() },
             React.createElement('div', { style: STYLES.dialog, role: 'dialog' },
@@ -72,11 +60,9 @@ const RemoteTester = ({ onClose }) => {
                 ),
                 React.createElement('div', { style: STYLES.log }, [
                     `pointer: ${pointer}`,
-                    `cursor asked: ${cursorHidden ? 'blank (3 s)' : 'default'}`,
                     ...MEDIA_QUERIES.map((query) => `${query}: ${window.matchMedia(query).matches}`),
                     `userAgent: ${navigator.userAgent}`,
                 ].join('\n')),
-                React.createElement('button', { style: STYLES.button, onClick: toggleCursor }, t('WEBOS_REMOTE_TESTER_TOGGLE_CURSOR')),
             ),
         ),
         document.body,
