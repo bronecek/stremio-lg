@@ -23,6 +23,15 @@ const patchScrolling = (target) => {
 
 const LINE_HEIGHT = 40;
 
+// A scroller without a compositor layer of its own is repainted, posters and all, on every frame it moves:
+// the Board scrolled at 24 fps on a webOS TV 26 set and at 50 with `will-change: scroll-position`
+// (which, unlike a transform, leaves fixed-position descendants alone).
+const promote = (element) => {
+    if (element instanceof HTMLElement && element.style.willChange === '') {
+        element.style.willChange = 'scroll-position';
+    }
+};
+
 const REDUCED_MOTION = /prefers-reduced-motion:\s*reduce/;
 
 // The answer never changes, so its listeners have nothing to hear.
@@ -71,12 +80,16 @@ const installNoMotion = () => {
 
         const delta = (vertical ? event.deltaY : event.deltaX) * (event.deltaMode === WheelEvent.DOM_DELTA_LINE ? LINE_HEIGHT : 1);
         event.preventDefault();
+        promote(container);
         if (vertical) {
             container.scrollTop += delta;
         } else {
             container.scrollLeft += delta;
         }
     }, { passive: false });
+
+    // Whatever else scrolls (arrow keys, focus, script) gets its layer from its first scroll on.
+    document.addEventListener('scroll', (event) => promote(event.target), { capture: true, passive: true });
 };
 
 module.exports = {
