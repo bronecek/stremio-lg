@@ -1,5 +1,6 @@
 // The player on the TV. The controls leave together with the system's cursor, even while it rests on
-// them, the arrow keys only seek and change the volume (they no longer also move the focus), and OK
+// them, the arrow keys only seek and change the volume (they no longer also move the focus) unless a
+// menu is open, where they move between its options (the player stops seeking then), and OK
 // pressed after them (the remote is then in 5-way mode and sends Enter) plays or pauses. CH ▼ hides the
 // controls at once and CH ▲ shows them.
 //
@@ -14,7 +15,7 @@ const CURSOR_HIDDEN_KEY_CODE = 1537;
 
 const isTyping = (element) => element instanceof HTMLElement && (element.matches('input, textarea, select') || element.isContentEditable);
 
-const usePlayerRemote = ({ onPlayPause, onHideControls, onShowControls }) => {
+const usePlayerRemote = ({ menusOpen, onPlayPause, onHideControls, onShowControls }) => {
     React.useEffect(() => {
         const onCursorStateChange = (event) => {
             if (event.detail?.visibility === false) {
@@ -27,14 +28,14 @@ const usePlayerRemote = ({ onPlayPause, onHideControls, onShowControls }) => {
 
     React.useEffect(() => {
         const spatialNavigation = window.__spatialNavigation__;
-        if (!spatialNavigation) return;
+        if (!spatialNavigation || menusOpen) return;
 
         const keyMode = spatialNavigation.keyMode;
         spatialNavigation.keyMode = 'NONE';
         return () => {
             spatialNavigation.keyMode = keyMode;
         };
-    }, []);
+    }, [menusOpen]);
 
     React.useEffect(() => {
         const onKeyDown = (event) => {

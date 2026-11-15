@@ -491,7 +491,7 @@ const Player = () => {
         setImmersed(false);
         setImmersedDebounced(true);
     }, [setImmersedDebounced]);
-    usePlayerRemote({ onPlayPause, onHideControls: hideControls, onShowControls: showControls });
+    usePlayerRemote({ menusOpen, onPlayPause, onHideControls: hideControls, onShowControls: showControls });
 
     const settingsTab = subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : null;
     const showSettingsTab = React.useCallback((tab) => {
