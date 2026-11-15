@@ -2,6 +2,13 @@
 
 @import (reference) '~@stremio/stremio-colors/less/stremio-colors.less';
 
+.webos-ring() {
+    outline-style: solid;
+    outline-width: 0.2rem;
+    outline-offset: -0.2rem;
+    outline-color: var(--primary-foreground-color);
+}
+
 .button-container {
     outline-width: var(--focus-outline-size);
     outline-color: @color-surface-light5;
@@ -17,20 +24,22 @@
         opacity: 0.5;
     }
 
-    // The webOS TV app: a clear ring around whatever the Magic Remote points at, and a press on OK.
+    // The webOS TV app: a clear ring around whatever the Magic Remote points at, or the arrow keys
+    // reached (while the cursor is hidden, only those), and a press on OK.
     :global(html.webos) & {
         transition: scale 100ms ease-out;
 
-        &:hover {
-            outline-style: solid;
-            outline-width: 0.2rem;
-            outline-offset: -0.2rem;
-            outline-color: var(--primary-foreground-color);
+        &:focus-visible {
+            .webos-ring();
         }
 
         &:active:not(:global(.active)) {
             scale: 0.97;
         }
+    }
+
+    :global(html.webos:not(.webos-cursor-hidden)) &:hover {
+        .webos-ring();
     }
 }
 

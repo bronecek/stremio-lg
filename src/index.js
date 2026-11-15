@@ -27,6 +27,7 @@ const { name: os } = require('./common/Platform/device');
 // lets styles tell the TV app apart.
 if (process.env.WEBOS) {
     require('stremio-webos/webOSService').installWebOSService();
+    require('stremio-webos/cursorMode').installCursorMode();
     document.documentElement.classList.add('webos');
 }
 
