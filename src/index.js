@@ -30,6 +30,7 @@ if (process.env.WEBOS) {
     require('stremio-webos/webOSService').installWebOSService();
     require('stremio-webos/cursorMode').installCursorMode();
     require('stremio-webos/noMotion').installNoMotion();
+    require('stremio-webos/arrowNavigation').installArrowNavigation();
     document.documentElement.classList.add('webos');
 }
 
