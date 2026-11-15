@@ -16,6 +16,22 @@
         pointer-events: none;
         opacity: 0.5;
     }
+
+    // The webOS TV app: a clear ring around whatever the Magic Remote points at, and a press on OK.
+    :global(html.webos) & {
+        transition: scale 100ms ease-out;
+
+        &:hover {
+            outline-style: solid;
+            outline-width: 0.2rem;
+            outline-offset: -0.2rem;
+            outline-color: var(--primary-foreground-color);
+        }
+
+        &:active:not(:global(.active)) {
+            scale: 0.97;
+        }
+    }
 }
 
 @media (pointer: coarse) {

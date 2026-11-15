@@ -53,6 +53,11 @@
         }
     }
 
+    // The webOS TV app rings every hovered button; a card already rings its poster.
+    :global(html.webos) & .meta-item-link:hover {
+        outline-style: none;
+    }
+
     .meta-item-link {
         display: block;
         overflow: visible;
