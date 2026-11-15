@@ -48,8 +48,9 @@ const CAST_DEVICES_REFRESH_INTERVAL = 5000;
 
 const POINTER_JITTER_PX = 8;
 
-// The TV remote in the webOS app; the web build leaves this module out.
+// The TV remote and the subtitles/audio/speed panel in the webOS app; the web build leaves them out.
 const usePlayerRemote = process.env.WEBOS ? require('stremio-webos/usePlayerRemote') : () => undefined;
+const PlayerSettingsPanel = process.env.WEBOS ? require('stremio-webos/PlayerSettingsPanel') : null;
 
 const Player = () => {
     const { stream, streamTransportUrl, metaTransportUrl, type, id, videoId } = useParams();
@@ -491,6 +492,16 @@ const Player = () => {
         setImmersedDebounced(true);
     }, [setImmersedDebounced]);
     usePlayerRemote({ onPlayPause, onHideControls: hideControls, onShowControls: showControls });
+
+    const settingsTab = subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : null;
+    const showSettingsTab = React.useCallback((tab) => {
+        if (tab !== 'subtitles' && subtitlesMenuOpen) toggleSubtitlesMenu();
+        if (tab !== 'audio' && audioMenuOpen) toggleAudioMenu();
+        if (tab !== 'speed' && speedMenuOpen) toggleSpeedMenu();
+        if (tab === 'subtitles' && !subtitlesMenuOpen) toggleSubtitlesMenu();
+        if (tab === 'audio' && !audioMenuOpen) toggleAudioMenu();
+        if (tab === 'speed' && !speedMenuOpen) toggleSpeedMenu();
+    }, [subtitlesMenuOpen, audioMenuOpen, speedMenuOpen, toggleSubtitlesMenu, toggleAudioMenu, toggleSpeedMenu]);
 
     const onSeekPrev = React.useCallback((event) => {
         if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
@@ -1178,27 +1189,62 @@ const Player = () => {
                     selected={player.selected?.streamRequest?.path?.id}
                 />
             </Transition>
-            <Transition when={subtitlesMenuOpen} name={'fade'}>
-                <SubtitlesMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    {...subtitlesMenuProps}
-                />
-            </Transition>
-            <Transition when={audioMenuOpen} name={'fade'}>
-                <AudioMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    audioTracks={video.state.audioTracks}
-                    selectedAudioTrackId={video.state.selectedAudioTrackId}
-                    onAudioTrackSelected={onAudioTrackSelected}
-                />
-            </Transition>
-            <Transition when={speedMenuOpen} name={'fade'}>
-                <SpeedMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    playbackSpeed={video.state.playbackSpeed}
-                    onPlaybackSpeedChanged={onPlaybackSpeedChanged}
-                />
-            </Transition>
+            {
+                PlayerSettingsPanel !== null ?
+                    <Transition when={settingsTab !== null} name={'fade'}>
+                        <PlayerSettingsPanel
+                            tab={settingsTab ?? 'subtitles'}
+                            available={{
+                                subtitles: Array.isArray(allSubtitleTracks) && allSubtitleTracks.length > 0,
+                                audio: Array.isArray(video.state.audioTracks) && video.state.audioTracks.length > 0,
+                                speed: video.state.playbackSpeed !== null,
+                            }}
+                            onTabSelected={showSettingsTab}
+                        >
+                            {
+                                settingsTab === 'subtitles' ?
+                                    <SubtitlesMenu {...subtitlesMenuProps} />
+                                    : settingsTab === 'audio' ?
+                                        <AudioMenu
+                                            audioTracks={video.state.audioTracks}
+                                            selectedAudioTrackId={video.state.selectedAudioTrackId}
+                                            onAudioTrackSelected={onAudioTrackSelected}
+                                        />
+                                        : settingsTab === 'speed' ?
+                                            <SpeedMenu
+                                                playbackSpeed={video.state.playbackSpeed}
+                                                onPlaybackSpeedChanged={onPlaybackSpeedChanged}
+                                            />
+                                            :
+                                            null
+                            }
+                        </PlayerSettingsPanel>
+                    </Transition>
+                    :
+                    <React.Fragment>
+                        <Transition when={subtitlesMenuOpen} name={'fade'}>
+                            <SubtitlesMenu
+                                className={classnames(styles['layer'], styles['menu-layer'])}
+                                {...subtitlesMenuProps}
+                            />
+                        </Transition>
+                        <Transition when={audioMenuOpen} name={'fade'}>
+                            <AudioMenu
+                                className={classnames(styles['layer'], styles['menu-layer'])}
+                                audioTracks={video.state.audioTracks}
+                                selectedAudioTrackId={video.state.selectedAudioTrackId}
+                                onAudioTrackSelected={onAudioTrackSelected}
+                            />
+                        </Transition>
+                        <Transition when={speedMenuOpen} name={'fade'}>
+                            <SpeedMenu
+                                className={classnames(styles['layer'], styles['menu-layer'])}
+                                playbackSpeed={video.state.playbackSpeed}
+                                onPlaybackSpeedChanged={onPlaybackSpeedChanged}
+                            />
+                        </Transition>
+                    </React.Fragment>
+            }
             <Transition when={optionsMenuOpen} name={'fade'}>
                 <OptionsMenu
                     className={classnames(styles['layer'], styles['menu-layer'])}
