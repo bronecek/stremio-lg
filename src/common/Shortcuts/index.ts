@@ -1,5 +1,5 @@
 import { ShortcutsProvider, useShortcuts } from './Shortcuts';
-import { getKeyboardShortcutKey, getKeyboardShortcutKeys } from './keyboard';
+import { getKeyboardShortcutKey, getKeyboardShortcutKeys, getMediaKeyAction } from './keyboard';
 import useShortcut from './useShortcut';
 
 export {
@@ -8,4 +8,5 @@ export {
     useShortcut,
     getKeyboardShortcutKey,
     getKeyboardShortcutKeys,
+    getMediaKeyAction,
 };

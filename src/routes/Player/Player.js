@@ -10,7 +10,7 @@ const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const { useCore } = require('stremio/core');
 const { useServices, useGamepad } = require('stremio/services');
 const { useContentGamepadNavigation } = require('stremio/services/GamepadNavigation');
-const { useSettings, useProfile, useFullscreen, useBinaryState, useToast, useStreamingServer, withCoreSuspender, usePlatform, useShortcut, getKeyboardShortcutKey, getKeyboardShortcutKeys, useDiscord, EMPTY_DISCORD_TIMESTAMPS, getPlaybackDiscordActivity } = require('stremio/common');
+const { useSettings, useProfile, useFullscreen, useBinaryState, useToast, useStreamingServer, withCoreSuspender, usePlatform, useShortcut, getKeyboardShortcutKey, getKeyboardShortcutKeys, getMediaKeyAction, useDiscord, EMPTY_DISCORD_TIMESTAMPS, getPlaybackDiscordActivity } = require('stremio/common');
 const { EPG_PLAYER_NOW_REFRESH_INTERVAL, getEpgTimeRange, useLiveRefresh } = require('stremio/common/EPG');
 const { default: toPath } = require('stremio-router/toPath');
 const { useGoBack } = require('stremio-router');
@@ -702,31 +702,64 @@ const Player = () => {
 
     useMediaSession(video.state, player, fullscreen, onPlayRequested, onPauseRequested, onNextVideoRequested);
 
+    const { setTime: setVideoTime } = video;
+    const onMediaKey = React.useCallback((action) => {
+        switch (action) {
+            case 'play-pause':
+                if (video.state.paused !== null) {
+                    video.state.paused ? onPlayRequested() : onPauseRequested();
+                }
+                break;
+            case 'play':
+                onPlayRequested();
+                break;
+            case 'pause':
+                onPauseRequested();
+                break;
+            case 'next-track':
+                if (!isEpg && player.nextVideo !== null) {
+                    setVideoTime(0);
+                    onNextVideoRequested();
+                }
+                break;
+            case 'stop':
+                closeMenus();
+                goBack();
+                break;
+            // A media key is one step: commit the seek at once, there is no key-up to wait for.
+            case 'fast-forward':
+                if (canSeek && !menusOpen) {
+                    onKeyboardSeekRequested(settings.seekTimeDuration);
+                    releaseKeyboardSeek();
+                }
+                break;
+            case 'rewind':
+                if (canSeek && !menusOpen) {
+                    onKeyboardSeekRequested(-settings.seekTimeDuration);
+                    releaseKeyboardSeek();
+                }
+                break;
+        }
+    }, [isEpg, video.state.paused, player.nextVideo, canSeek, menusOpen, settings.seekTimeDuration, setVideoTime, onPlayRequested, onPauseRequested, onNextVideoRequested, onKeyboardSeekRequested, releaseKeyboardSeek, closeMenus, goBack]);
+
     React.useEffect(() => {
-        const onMediaKey = (action) => {
-            switch (action) {
-                case 'play-pause':
-                    if (video.state.paused !== null) {
-                        video.state.paused ? onPlayRequested() : onPauseRequested();
-                    }
-                    break;
-                case 'play':
-                    onPlayRequested();
-                    break;
-                case 'pause':
-                    onPauseRequested();
-                    break;
-                case 'next-track':
-                    if (!isEpg && player.nextVideo !== null) {
-                        video.setTime(0);
-                        onNextVideoRequested();
-                    }
-                    break;
-            }
-        };
         platform.shell.on('media-key', onMediaKey);
         return () => platform.shell.off('media-key', onMediaKey);
-    }, [isEpg, video.state.paused, player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested]);
+    }, [onMediaKey]);
+
+    React.useEffect(() => {
+        if (!routeFocused) return;
+
+        const onKeyDown = (event) => {
+            const action = getMediaKeyAction(event);
+            if (action !== null) {
+                event.preventDefault();
+                onMediaKey(action);
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [routeFocused, onMediaKey]);
 
     useShortcut('seekForward', React.useCallback((combo) => {
         const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;

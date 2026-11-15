@@ -69,8 +69,24 @@ const getKeyboardShortcutKeys = (event: KeyboardEvent) => {
     return code && code !== normalizedKey ? [code, normalizedKey] : [normalizedKey];
 };
 
+type MediaKeyAction = 'play' | 'pause' | 'stop' | 'fast-forward' | 'rewind';
+
+// Play-pause and next-track are left out: browsers route those keys to the Media Session handlers.
+const MEDIA_KEY_ACTIONS: Record<string, MediaKeyAction> = {
+    MediaPlay: 'play',
+    MediaPause: 'pause',
+    MediaStop: 'stop',
+    MediaFastForward: 'fast-forward',
+    MediaRewind: 'rewind',
+};
+
+const getMediaKeyAction = (event: KeyboardEvent): MediaKeyAction | null => {
+    return MEDIA_KEY_ACTIONS[event.key] ?? null;
+};
+
 export {
     PRIMARY_MODIFIER,
     getKeyboardShortcutKey,
     getKeyboardShortcutKeys,
+    getMediaKeyAction,
 };
