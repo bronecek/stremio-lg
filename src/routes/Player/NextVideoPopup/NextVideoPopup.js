@@ -15,7 +15,15 @@ const NextVideoPopup = ({ className, metaItem, nextVideo, isEpg, onDismiss, onNe
     const blurPosterImage = profile.settings.hideSpoilers && metaItem?.type === 'series' && !nextVideo?.watched;
     const dismissButtonRef = React.useRef(null);
     const watchNowButtonRef = React.useRef(null);
+    const containerRef = React.useRef(null);
     const [animationEnded, setAnimationEnded] = React.useState(false);
+
+    // Without its slide-in (reduced motion, styles that turn animations off) no animationend comes.
+    React.useLayoutEffect(() => {
+        if (containerRef.current !== null && getComputedStyle(containerRef.current).animationName === 'none') {
+            setAnimationEnded(true);
+        }
+    }, []);
 
     const videoName = React.useMemo(() => {
         const title = nextVideo && nextVideo.title || metaItem && metaItem.title;
@@ -75,7 +83,7 @@ const NextVideoPopup = ({ className, metaItem, nextVideo, isEpg, onDismiss, onNe
     }, [animationEnded, isEpg]);
 
     return (
-        <div className={classnames(className, styles['next-video-popup-container'])} onAnimationEnd={onAnimationEnd}>
+        <div ref={containerRef} className={classnames(className, styles['next-video-popup-container'])} onAnimationEnd={onAnimationEnd}>
             <div className={styles['poster-container']}>
                 <Image
                     className={classnames(styles['poster-image'], { [styles['blurred']]: blurPosterImage })}
