@@ -40,12 +40,12 @@ The script then copies `appinfo.json` (with the version from `package.json`) and
 2. On the TV, install **Developer Mode** from the LG Content Store, sign in with that account and turn
    **Dev Mode Status** on. The TV restarts.
 3. Open Developer Mode again and turn **Key Server** on. Note the TV's IP address and the passphrase it shows.
-4. Register the TV as `tv` (the PC and the TV must be on the same network), fetch its key (this asks for
-   the passphrase) and check the connection:
+4. Register the TV as `tv` (the PC and the TV must be on the same network), fetch its key with the
+   passphrase and check the connection:
 
    ```bash
    pnpm exec ares-setup-device --add tv -i "host=<TV_IP>" -i "port=9922" -i "username=prisoner"
-   pnpm exec ares-novacom --device tv --getkey
+   pnpm exec ares-novacom --device tv --getkey --passphrase <PASSPHRASE>
    pnpm exec ares-device --device tv --system-info
    ```
 
@@ -67,8 +67,9 @@ pnpm exec ares-inspect --device tv --app com.bronec.stremio --open
 
 ## Developer Mode session
 
-A Developer Mode session lasts 50 hours. Extend it with **Extend** in the Developer Mode app on the TV.
-When it runs out, the TV removes the apps installed this way; turn Dev Mode on again and run `pnpm deploy:webos`.
+The Developer Mode app shows how long the session has left ("Dev Mode Session"; about 1000 hours on a
+webOS TV 26 set, 50 hours on older ones) and extends it. When it runs out, the TV removes the apps
+installed this way; turn Dev Mode on again and run `pnpm deploy:webos`.
 
 ## Simulator
 
