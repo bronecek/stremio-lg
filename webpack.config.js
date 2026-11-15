@@ -41,7 +41,8 @@ module.exports = (env, argv) => ({
         worker: './node_modules/@stremio/stremio-core-web/worker.js'
     },
     output: {
-        path: path.join(__dirname, 'build'),
+        // `--env webos` builds the webOS TV app (see webos/README.md).
+        path: path.join(__dirname, env.webos ? path.join('build-webos', 'app') : 'build'),
         filename: `${COMMIT_HASH}/scripts/[name].js`,
         clean: true,
     },
@@ -219,7 +220,8 @@ module.exports = (env, argv) => ({
         new webpack.EnvironmentPlugin({
             SENTRY_DSN: null,
             ...env,
-            SERVICE_WORKER_DISABLED: false,
+            SERVICE_WORKER_DISABLED: env.webos === true,
+            WEBOS: env.webos === true,
             DEBUG: argv.mode !== 'production',
             VERSION: packageJson.version,
             COMMIT_HASH
@@ -227,7 +229,7 @@ module.exports = (env, argv) => ({
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer']
         }),
-        argv.mode === 'production' &&
+        argv.mode === 'production' && !env.webos &&
             new WorkboxPlugin.GenerateSW({
                 maximumFileSizeToCacheInBytes: 20000000,
                 clientsClaim: true,
@@ -251,6 +253,7 @@ module.exports = (env, argv) => ({
             scriptLoading: 'blocking',
             faviconsPath: 'favicons',
             imagesPath: 'images',
+            webos: env.webos === true,
         }),
     ].filter(Boolean)
 });
