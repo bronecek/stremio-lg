@@ -8,6 +8,10 @@ import { normalizeInterfaceScale, setInterfaceScale } from 'stremio/common/inter
 
 type ScaleAction = 'decrease' | 'increase' | 'reset';
 
+// The webOS TV app is read from the sofa: it draws everything half as large again, on top of the
+// account's interface scale, which stays shared with the account's other devices.
+const DEVICE_SCALE = process.env.WEBOS ? 1.5 : 1;
+
 const useInterfaceScale = (profile: Profile) => {
     const core = useCore();
     const { shell } = usePlatform();
@@ -43,7 +47,7 @@ const useInterfaceScale = (profile: Profile) => {
             setInterfaceScale(1);
             shell.send('win-set-interface-scale', { scale });
         } else {
-            setInterfaceScale(scale / 100);
+            setInterfaceScale(scale / 100 * DEVICE_SCALE);
         }
     }, [scale, shell]);
 
